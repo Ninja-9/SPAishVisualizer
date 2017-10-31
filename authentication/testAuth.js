@@ -1,9 +1,9 @@
 module.exports = {
   confirm(req, res, next) {
-    console.log(req.isAuthenticated());
-    return req.isAuthenticated() ? next() : res.redirect('/FAILED');
+    if (req.isAuthenticated()) { return next(); }
+    res.redirect('/login');
   },
   success(req, res) {
-    res.redirect('/seemsLegit');
+    res.render('account', { user: req.user });
   },
 };
