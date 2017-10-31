@@ -1,0 +1,24 @@
+{
+  "name": "gittree",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "setup": "node setup.js",
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "passport": "^0.4.0",
+    "passport-github2": "^0.1.11",
+    "passport-oauth": "^1.0.0"
+  },
+  "devDependencies": {
+    "dotenv": "^4.0.0"
+  }
+}
