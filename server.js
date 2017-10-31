@@ -14,7 +14,7 @@ api.use(session({ secret: 'tttt', resave: false, saveUninitialized: false }));
 api.use(passport.initialize());
 api.use(passport.session());
 
-api.get('/login', passport.authenticate('github')); // <-- login could be anything
+api.get('/login', passport.authenticate('github')); // <-- login 'route' could be anything
 api.get('/auth/github/callback', (req, res) => {
   console.log(req.isAuthenticated());
   res.send('Callback Done');
