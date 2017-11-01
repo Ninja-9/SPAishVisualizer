@@ -9,7 +9,7 @@ const path = require('path');
 const api = express();
 dotEnv.config();
 
-const passport = require('./authentication/passport.js');
+const { passport, getToken } = require('./authentication/passport.js');
 const testAuth = require('./authentication/testAuth.js');
 
 api.set('views', path.join(__dirname, '/views'));
@@ -48,26 +48,88 @@ api.get('/logout', (req, res) => {
   res.redirect('/');
 });
 
-function getJSON_Obj(req, res) {
-  let objGraphQL = {};
-  objGraphQL.user = req.user;
-  const { graphql, buildSchema } = require('graphql');
 
-  return objGraphQL;
+function getJSON_Obj(req, res, next) {
+  console.log('Enter getJSON_obj');
+  const objGraphQL = {};
+  objGraphQL.user = req.user;
+  const client = require('graphql-client')({
+    url: 'https://api.github.com/graphql',
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  });
+
+  const variables = {};
+
+  let qryStrSchema;
+  qryStrSchema = `
+  {
+    __schema {
+      types {
+        name
+        kind
+        description
+        fields {
+          name
+        }
+      }
+    }
+  }
+  `;
+
+  //  the query for the [root] of the [master] branch (which works...)
+  qryStrSchema = `
+  {
+    viewer {
+      repository(name: "XHR-Demystified_byGeorge2.0") {
+        object(expression: "master:") {
+        ... on Tree{
+          entries{
+            name
+            type
+            mode
+          }
+        }
+      }
+      }
+    }
+  }
+  `;
+
+  qryStrSchema = `
+  query {
+    repository(name: "XHR-Demystified_byGeorge2.0", owner: "PracticalCode") {
+      object(expression: "master:WebFunctions.js") {
+        ... on Blob {
+          text
+        }
+      }
+    }
+  }
+  `;
+
+  console.log('Hit clientQuery');
+  client.query(qryStrSchema, variables, (req, res, next) => {
+    console.log(`Inside client.query --- status = ${res}`);
+    if (res.status === 401) {
+      console.log('Inside if Statement')
+      throw new Error('Not authorized');
+    }
+  })
+  .then((body) => {
+    console.log(`Body Exists: ${body !== undefined}`);
+    res.locals.graphQLData = body.data.repository.object;
+    next();
+  })
+  .catch(err => err.message);
 }
 
-api.get('/graphQL-Query', testAuth.confirm, (req, res) => {
-  res.render('graphQL-Query', getJSON_Obj(req, res));
+api.get('/graphQL-Query', testAuth.confirm, getJSON_Obj, (req, res) => {
+  console.log('inside api.get');
+  res.render('/graphQL-Query', { user: req.user, graphQLData: res.locals.graphQLData });
 });
-// api.get('/login', passport.authenticate('github')); // <-- login 'route' could be anything
-// api.get('/auth/github/callback', (req, res) => {
-//   if (req.isAuthenticated()) ;
-//   res.send('Callback Done');
-// }); // <---testing .isAuthenticated, it gives false (which means I am missing something
-// but when I delete my key on github and login through '/login' route key re-appears
-// and if users (under github Oauth Apps) are reset
-// it adds a user
-// api.get('/home', testAuth.confirm, testAuth.success);
+
 
 api.listen(process.env.PORT, (err) => {
   if (err) console.log(err);
