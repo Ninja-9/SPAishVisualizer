@@ -10,9 +10,13 @@ var partials = require('express-partials');
 
 // var GITHUB_CLIENT_ID = "--insert-github-client-id-here--";
 // var GITHUB_CLIENT_SECRET = "--insert-github-client-secret-here--";
-var GITHUB_CLIENT_ID = "275d77acee736e151d9b";
-var GITHUB_CLIENT_SECRET = "77b04016d99710285d91867ec13194a031808e35";
 
+// var GITHUB_CLIENT_ID = "275d77acee736e151d9b";
+// var GITHUB_CLIENT_SECRET = "77b04016d99710285d91867ec13194a031808e35";
+
+let {GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET} = require('./keys.env');
+console.log("GITHUB_CLIENT_ID === ", GITHUB_CLIENT_ID);
+console.log("GITHUB_CLIENT_SECRET === ", GITHUB_CLIENT_SECRET);
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
